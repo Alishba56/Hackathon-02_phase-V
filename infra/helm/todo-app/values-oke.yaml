@@ -1,0 +1,59 @@
+# OKE-specific values for Oracle Kubernetes Engine deployment
+# Override base values.yaml for production OKE environment
+
+global:
+  environment: production
+  imagePullPolicy: IfNotPresent
+
+frontend:
+  image:
+    repository: ghcr.io/YOUR_GITHUB_USERNAME/todo-frontend
+    tag: latest
+    pullPolicy: IfNotPresent
+  replicas: 1
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "200m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+
+backend:
+  image:
+    repository: ghcr.io/YOUR_GITHUB_USERNAME/todo-backend
+    tag: latest
+    pullPolicy: IfNotPresent
+  replicas: 1
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "300m"
+    limits:
+      memory: "1Gi"
+      cpu: "1000m"
+
+ingress:
+  enabled: true
+  className: nginx
+  host: todo-app.example.com  # Update with your domain or OKE load balancer IP
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    # Optional: Enable TLS
+    # cert-manager.io/cluster-issuer: letsencrypt-prod
+
+# Dapr configuration for OKE
+dapr:
+  enabled: true
+  appId: todo-app
+  logLevel: info
+  kafka:
+    brokers: "seed-abc123.cloud.redpanda.com:9092"  # Update with actual Redpanda bootstrap URL
+
+# Secrets (provided at deployment time via --set or separate secrets file)
+secrets:
+  databaseUrl: ""  # Set via: --set secrets.databaseUrl=$DATABASE_URL
+  betterAuthSecret: ""  # Set via: --set secrets.betterAuthSecret=$BETTER_AUTH_SECRET
+  cohereApiKey: ""  # Set via: --set secrets.cohereApiKey=$COHERE_API_KEY
+  kafkaUsername: ""  # Set via: --set secrets.kafkaUsername=$KAFKA_USERNAME
+  kafkaPassword: ""  # Set via: --set secrets.kafkaPassword=$KAFKA_PASSWORD

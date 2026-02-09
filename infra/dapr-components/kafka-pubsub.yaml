@@ -1,0 +1,61 @@
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: kafka-pubsub
+  namespace: default
+spec:
+  type: pubsub.kafka
+  version: v1
+  metadata:
+  # Kafka broker addresses (Redpanda Cloud)
+  # UPDATE THIS with your Redpanda bootstrap URL after cluster creation
+  - name: brokers
+    value: "seed-abc123.cloud.redpanda.com:9092"
+
+  # Authentication type
+  - name: authType
+    value: "password"
+
+  # SASL username (from Kubernetes Secret)
+  - name: saslUsername
+    secretKeyRef:
+      name: kafka-secrets
+      key: username
+
+  # SASL password (from Kubernetes Secret)
+  - name: saslPassword
+    secretKeyRef:
+      name: kafka-secrets
+      key: password
+
+  # SASL mechanism (required by Redpanda)
+  - name: saslMechanism
+    value: "SCRAM-SHA-256"
+
+  # Consumer group ID
+  - name: consumerGroup
+    value: "todo-app-group"
+
+  # Client ID for producer
+  - name: clientId
+    value: "todo-app-producer"
+
+  # Initial offset for new consumers
+  - name: initialOffset
+    value: "newest"
+
+  # Max message bytes
+  - name: maxMessageBytes
+    value: "1048576"  # 1MB
+
+  # Enable idempotent producer
+  - name: enableIdempotence
+    value: "true"
+
+  # Compression type
+  - name: compressionType
+    value: "snappy"
+
+scopes:
+- backend
+- chat-api

@@ -1,0 +1,452 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "MCP Tools for AI Todo Chatbot",
+  "description": "Model Context Protocol tool definitions in Cohere-compatible format for task management and user profile operations",
+  "version": "1.0.0",
+  "tools": [
+    {
+      "name": "add_task",
+      "description": "Create a new task for the authenticated user. Use this when the user wants to add, create, or make a new todo item.",
+      "parameter_definitions": {
+        "title": {
+          "type": "string",
+          "description": "The title or name of the task. This is the main description of what needs to be done.",
+          "required": true
+        },
+        "description": {
+          "type": "string",
+          "description": "Optional detailed description or notes about the task. Provides additional context.",
+          "required": false
+        },
+        "priority": {
+          "type": "string",
+          "description": "Optional priority level for the task",
+          "enum": ["low", "medium", "high"],
+          "required": false
+        },
+        "due_date": {
+          "type": "string",
+          "description": "Optional due date in ISO 8601 format (YYYY-MM-DD)",
+          "required": false
+        }
+      },
+      "returns": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Whether the task was created successfully"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid",
+                "description": "Unique identifier for the created task"
+              },
+              "title": {
+                "type": "string",
+                "description": "Task title"
+              },
+              "description": {
+                "type": "string",
+                "description": "Task description"
+              },
+              "completed": {
+                "type": "boolean",
+                "description": "Completion status (always false for new tasks)"
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Task creation timestamp"
+              }
+            }
+          },
+          "error": {
+            "type": "string",
+            "description": "Error message if creation failed"
+          }
+        }
+      },
+      "examples": [
+        {
+          "input": {
+            "title": "Buy groceries",
+            "description": "Milk, eggs, bread"
+          },
+          "output": {
+            "success": true,
+            "data": {
+              "id": "770e8400-e29b-41d4-a716-446655440000",
+              "title": "Buy groceries",
+              "description": "Milk, eggs, bread",
+              "completed": false,
+              "created_at": "2026-02-07T10:30:00Z"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "list_tasks",
+      "description": "Retrieve a list of tasks for the authenticated user. Can filter by completion status and sort by different criteria.",
+      "parameter_definitions": {
+        "status": {
+          "type": "string",
+          "description": "Filter tasks by completion status. Use 'pending' for incomplete tasks, 'completed' for finished tasks, or omit to show all tasks.",
+          "enum": ["pending", "completed", "all"],
+          "required": false
+        },
+        "sort": {
+          "type": "string",
+          "description": "Sort order for the task list",
+          "enum": ["created_asc", "created_desc", "title_asc", "title_desc"],
+          "required": false
+        },
+        "limit": {
+          "type": "integer",
+          "description": "Maximum number of tasks to return (default: 50)",
+          "minimum": 1,
+          "maximum": 100,
+          "required": false
+        }
+      },
+      "returns": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Whether the query was successful"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "completed": {
+                  "type": "boolean"
+                },
+                "created_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "updated_at": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          },
+          "error": {
+            "type": "string"
+          }
+        }
+      },
+      "examples": [
+        {
+          "input": {
+            "status": "pending"
+          },
+          "output": {
+            "success": true,
+            "data": [
+              {
+                "id": "770e8400-e29b-41d4-a716-446655440000",
+                "title": "Buy groceries",
+                "description": "Milk, eggs, bread",
+                "completed": false,
+                "created_at": "2026-02-07T10:30:00Z",
+                "updated_at": "2026-02-07T10:30:00Z"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "complete_task",
+      "description": "Mark a task as completed. Use this when the user indicates they have finished or completed a task.",
+      "parameter_definitions": {
+        "task_id": {
+          "type": "string",
+          "description": "The unique identifier (UUID) of the task to mark as complete. Can also accept task title if unambiguous.",
+          "required": true
+        }
+      },
+      "returns": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "title": {
+                "type": "string"
+              },
+              "completed": {
+                "type": "boolean",
+                "description": "Always true after successful completion"
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          },
+          "error": {
+            "type": "string"
+          }
+        }
+      },
+      "examples": [
+        {
+          "input": {
+            "task_id": "770e8400-e29b-41d4-a716-446655440000"
+          },
+          "output": {
+            "success": true,
+            "data": {
+              "id": "770e8400-e29b-41d4-a716-446655440000",
+              "title": "Buy groceries",
+              "completed": true,
+              "updated_at": "2026-02-07T11:00:00Z"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "delete_task",
+      "description": "Permanently delete a task. Use this when the user wants to remove or delete a task from their list.",
+      "parameter_definitions": {
+        "task_id": {
+          "type": "string",
+          "description": "The unique identifier (UUID) of the task to delete. Can also accept task title if unambiguous.",
+          "required": true
+        }
+      },
+      "returns": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "title": {
+                "type": "string",
+                "description": "Title of the deleted task"
+              }
+            }
+          },
+          "error": {
+            "type": "string"
+          }
+        }
+      },
+      "examples": [
+        {
+          "input": {
+            "task_id": "770e8400-e29b-41d4-a716-446655440000"
+          },
+          "output": {
+            "success": true,
+            "data": {
+              "id": "770e8400-e29b-41d4-a716-446655440000",
+              "title": "Buy groceries"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "update_task",
+      "description": "Update one or more fields of an existing task. Use this when the user wants to change, modify, or edit a task.",
+      "parameter_definitions": {
+        "task_id": {
+          "type": "string",
+          "description": "The unique identifier (UUID) of the task to update. Can also accept task title if unambiguous.",
+          "required": true
+        },
+        "title": {
+          "type": "string",
+          "description": "New title for the task",
+          "required": false
+        },
+        "description": {
+          "type": "string",
+          "description": "New description for the task",
+          "required": false
+        },
+        "completed": {
+          "type": "boolean",
+          "description": "New completion status",
+          "required": false
+        },
+        "priority": {
+          "type": "string",
+          "description": "New priority level",
+          "enum": ["low", "medium", "high"],
+          "required": false
+        }
+      },
+      "returns": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "title": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "completed": {
+                "type": "boolean"
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          },
+          "error": {
+            "type": "string"
+          }
+        }
+      },
+      "examples": [
+        {
+          "input": {
+            "task_id": "770e8400-e29b-41d4-a716-446655440000",
+            "title": "Buy groceries and milk"
+          },
+          "output": {
+            "success": true,
+            "data": {
+              "id": "770e8400-e29b-41d4-a716-446655440000",
+              "title": "Buy groceries and milk",
+              "description": "Milk, eggs, bread",
+              "completed": false,
+              "updated_at": "2026-02-07T11:15:00Z"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "get_user_profile",
+      "description": "Retrieve the authenticated user's profile information including ID, email, name, and account creation date. Use this when the user asks about their account, email, name, or profile.",
+      "parameter_definitions": {},
+      "returns": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid",
+                "description": "User's unique identifier"
+              },
+              "email": {
+                "type": "string",
+                "format": "email",
+                "description": "User's email address"
+              },
+              "name": {
+                "type": "string",
+                "description": "User's display name"
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Account creation timestamp"
+              }
+            }
+          },
+          "error": {
+            "type": "string"
+          }
+        }
+      },
+      "examples": [
+        {
+          "input": {},
+          "output": {
+            "success": true,
+            "data": {
+              "id": "550e8400-e29b-41d4-a716-446655440000",
+              "email": "muhammad@example.com",
+              "name": "Muhammad Ali",
+              "created_at": "2026-01-15T10:30:00Z"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "security": {
+    "authentication": "JWT Bearer token required for all tool calls",
+    "authorization": "All tools enforce user_id ownership - users can only access their own data",
+    "validation": "All inputs validated with Pydantic models before execution"
+  },
+  "error_handling": {
+    "task_not_found": {
+      "success": false,
+      "error": "Task not found. Please check the task ID."
+    },
+    "invalid_input": {
+      "success": false,
+      "error": "Invalid input: [specific validation error]"
+    },
+    "database_error": {
+      "success": false,
+      "error": "Unable to complete request. Please try again."
+    },
+    "ownership_violation": {
+      "success": false,
+      "error": "You don't have permission to access this task."
+    }
+  },
+  "implementation_notes": {
+    "user_context": "All tools receive user_id from JWT token automatically",
+    "idempotency": "complete_task and delete_task are idempotent (safe to retry)",
+    "parallel_execution": "Tools can be executed in parallel when Cohere returns multiple tool calls",
+    "transaction_safety": "Each tool uses database transactions for atomicity"
+  }
+}

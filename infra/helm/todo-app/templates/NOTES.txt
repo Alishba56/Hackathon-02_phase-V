@@ -1,0 +1,42 @@
+Thank you for installing {{ .Chart.Name }}!
+
+Your release is named {{ .Release.Name }}.
+
+To access your application:
+
+{{- if .Values.ingress.enabled }}
+1. Add the following entry to your /etc/hosts file:
+   127.0.0.1 {{ .Values.ingress.host }}
+
+   On Linux/macOS:
+   echo '127.0.0.1 {{ .Values.ingress.host }}' | sudo tee -a /etc/hosts
+
+   On Windows (PowerShell as Administrator):
+   Add-Content -Path C:\Windows\System32\drivers\etc\hosts -Value '127.0.0.1 {{ .Values.ingress.host }}'
+
+2. Access the application at:
+   http://{{ .Values.ingress.host }}
+
+3. API endpoints are available at:
+   http://{{ .Values.ingress.host }}/api
+{{- else }}
+1. Get the frontend URL by running:
+   kubectl port-forward svc/{{ include "todo-app.fullname" . }}-frontend 3000:3000
+
+2. Get the backend URL by running:
+   kubectl port-forward svc/{{ include "todo-app.fullname" . }}-backend 8000:8000
+{{- end }}
+
+To check the status of your deployment:
+  kubectl get pods -l "app.kubernetes.io/instance={{ .Release.Name }}"
+
+To view logs:
+  kubectl logs -l "app.kubernetes.io/instance={{ .Release.Name }}" -f
+
+To check resource usage:
+  kubectl top pods -l "app.kubernetes.io/instance={{ .Release.Name }}"
+
+For more information, visit the documentation at:
+  docs/deployment/
+
+Enjoy your cloud-native Todo AI Chatbot! 🚀

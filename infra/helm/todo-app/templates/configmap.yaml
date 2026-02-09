@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "todo-app.fullname" . }}-config
+  labels:
+    {{- include "todo-app.labels" . | nindent 4 }}
+# ConfigMap stores non-sensitive configuration data as key-value pairs
+# Unlike Secrets, ConfigMap data is stored in plain text
+# Use ConfigMap for configuration that doesn't contain sensitive information
+data:
+  # Application environment (development, staging, production)
+  # Affects logging verbosity, error handling, and optimization levels
+  ENVIRONMENT: {{ .Values.config.environment | quote }}
+
+  # Logging level for application logs
+  # Common values: DEBUG, INFO, WARNING, ERROR, CRITICAL
+  # Lower levels (DEBUG) provide more detail but increase log volume
+  LOG_LEVEL: {{ .Values.config.logLevel | quote }}

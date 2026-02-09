@@ -1,0 +1,144 @@
+# Dependencies
+node_modules/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+backend/venv/
+
+# Environment variables
+.env*
+!.env.example
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+
+# Testing
+coverage/
+junit.xml
+.pytest_cache/
+.coverage
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Runtime
+npm/
+pnpm/
+
+# TypeScript
+*.tsbuildinfo
+*.bak
+
+# Next.js
+.svelte-kit/
+.cucumber-reports/
+
+# Coverage
+.nyc_output/
+coverage/
+*.lcov
+
+# Temporary folders
+temp/
+tmp/
+
+# Secrets and sensitive data
+secrets/
+*.key
+*.pem
+*.cer
+*.crt
+*.cert
+*.pub
+
+# Database
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# Cache
+.cache/
+.nuxt/
+.vuepress/dist
+.serverless/
+.vercel
+
+# Development
+debug/
+debug-*/
+
+# Browsers
+hs_err_pid*
+replay_pid*
+
+# Node.js
+.fusebox/
+.tern-project
+
+# Yarn
+.yarn/
+.pnp.*
+
+# Production builds
+public/build/
+dist-server/
+dist-client/
+
+# Local configuration
+config.local.js
+local.properties
+
+# Infrastructure / Kubernetes
+infra/**/*.secret.yaml
+infra/**/secrets/
+infra/**/.kube/
+infra/**/kubeconfig*
+infra/**/*.local.yaml
+infra/**/*.local.yml
+*.tfstate*
+*.tfvars
+.terraform/
+.terraform.lock.hcl
+
+# Docker
+.dockerignore.local
+docker-compose.override.yml
+
+# Helm
+infra/helm/**/.helmignore.local
+infra/helm/**/charts/
+infra/helm/**/Chart.lock
+
+# Minikube
+.minikube/
+minikube.log

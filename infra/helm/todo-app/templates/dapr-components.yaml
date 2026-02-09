@@ -1,0 +1,95 @@
+{{- if .Values.dapr.enabled }}
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: kafka-pubsub
+  namespace: {{ .Release.Namespace }}
+spec:
+  type: pubsub.kafka
+  version: v1
+  metadata:
+  - name: brokers
+    value: {{ .Values.dapr.kafka.brokers | quote }}
+  - name: authType
+    value: "password"
+  - name: saslUsername
+    secretKeyRef:
+      name: kafka-secrets
+      key: username
+  - name: saslPassword
+    secretKeyRef:
+      name: kafka-secrets
+      key: password
+  - name: saslMechanism
+    value: "SCRAM-SHA-256"
+  - name: consumerGroup
+    value: "todo-app-group"
+  - name: clientId
+    value: "todo-app-producer"
+  - name: initialOffset
+    value: "newest"
+  - name: maxMessageBytes
+    value: "1048576"
+  - name: enableIdempotence
+    value: "true"
+  - name: compressionType
+    value: "snappy"
+  scopes:
+  - backend
+  - chat-api
+---
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: statestore
+  namespace: {{ .Release.Namespace }}
+spec:
+  type: state.postgresql
+  version: v1
+  metadata:
+  - name: connectionString
+    secretKeyRef:
+      name: app-secrets
+      key: database-url
+  - name: tableName
+    value: "dapr_state"
+  - name: keyPrefix
+    value: "todo-app"
+  - name: timeout
+    value: "20"
+  - name: actorStateStore
+    value: "true"
+  scopes:
+  - backend
+  - chat-api
+---
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: scheduler
+  namespace: {{ .Release.Namespace }}
+spec:
+  type: scheduler.kubernetes
+  version: v1
+  metadata:
+  - name: namespace
+    value: {{ .Release.Namespace | quote }}
+  - name: jobNamespace
+    value: {{ .Release.Namespace | quote }}
+  scopes:
+  - backend
+---
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: kubernetes-secrets
+  namespace: {{ .Release.Namespace }}
+spec:
+  type: secretstores.kubernetes
+  version: v1
+  metadata: []
+  scopes:
+  - backend
+  - frontend
+  - chat-api
+{{- end }}
