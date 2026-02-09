@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(powershell:*)",
+      "Bash(git checkout -b \"002-fastapi-backend\")",
+      "Bash(timeout:*)",
+      "Bash(curl -s -H \"Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0LXVzZXItMTIzIiwiZW1haWwiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaWF0IjoxNzcwNDY4MzU0LCJleHAiOjE3NzA1NTQ3NTR9.g_AIXjowUfL-y0wNFvFeJAmlVJYvKyBqdAh7unVKq-0\" \"http://localhost:8001/api/tasks/1752b58b-6cd5-4267-a41a-ce20db7a3180\")",
+      "Bash(python -m json.tool)"
+    ]
+  }
+}

@@ -1,0 +1,136 @@
+# Global configuration
+global:
+  environment: production
+  imagePullPolicy: Never  # Use local images in Minikube
+
+# Frontend configuration
+frontend:
+  enabled: true
+  name: frontend
+
+  image:
+    repository: todo-frontend
+    tag: latest
+    pullPolicy: Never
+
+  replicas: 1
+
+  service:
+    type: ClusterIP
+    port: 3000
+    targetPort: 3000
+
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "200m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+
+  probes:
+    readiness:
+      enabled: true
+      path: /
+      initialDelaySeconds: 10
+      periodSeconds: 5
+      timeoutSeconds: 3
+      successThreshold: 1
+      failureThreshold: 3
+    liveness:
+      enabled: true
+      path: /
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      timeoutSeconds: 3
+      successThreshold: 1
+      failureThreshold: 3
+
+  env:
+    # API URL for frontend to call backend
+    apiUrl: "http://backend:8000"
+
+# Backend configuration
+backend:
+  enabled: true
+  name: backend
+
+  image:
+    repository: todo-backend
+    tag: latest
+    pullPolicy: Never
+
+  replicas: 1
+
+  service:
+    type: ClusterIP
+    port: 8000
+    targetPort: 8000
+
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "300m"
+    limits:
+      memory: "1Gi"
+      cpu: "1000m"
+
+  probes:
+    readiness:
+      enabled: true
+      path: /health
+      initialDelaySeconds: 10
+      periodSeconds: 5
+      timeoutSeconds: 3
+      successThreshold: 1
+      failureThreshold: 3
+    liveness:
+      enabled: true
+      path: /health
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      timeoutSeconds: 3
+      successThreshold: 1
+      failureThreshold: 3
+
+  env:
+    environment: production
+
+# Ingress configuration
+ingress:
+  enabled: true
+  className: nginx
+  host: todo.local
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+  paths:
+    - path: /api
+      pathType: Prefix
+      backend: backend
+      port: 8000
+    - path: /
+      pathType: Prefix
+      backend: frontend
+      port: 3000
+
+# Secrets configuration (provided at install time)
+secrets:
+  # Database connection string
+  databaseUrl: ""
+  # Better Auth JWT secret
+  betterAuthSecret: ""
+  # Cohere API key
+  cohereApiKey: ""
+
+# ConfigMap configuration
+config:
+  environment: production
+  logLevel: info
+
+# Dapr configuration
+dapr:
+  enabled: true
+  appId: todo-app
+  logLevel: info
+  kafka:
+    brokers: "seed-abc123.cloud.redpanda.com:9092"  # Update with actual Redpanda URL

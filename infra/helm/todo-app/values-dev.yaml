@@ -1,0 +1,31 @@
+# Development overrides for values.yaml
+# Use with: helm install -f values.yaml -f values-dev.yaml
+
+global:
+  environment: development
+
+frontend:
+  replicas: 1
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "256Mi"
+      cpu: "250m"
+
+backend:
+  replicas: 1
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "150m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+  env:
+    environment: development
+
+config:
+  environment: development
+  logLevel: debug

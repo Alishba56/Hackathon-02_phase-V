@@ -1,0 +1,40 @@
+{{- if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "todo-app.fullname" . }}
+  labels:
+    {{- include "todo-app.labels" . | nindent 4 }}
+  {{- with .Values.ingress.annotations }}
+  # Annotations can be used to configure ingress controller behavior
+  # Example: nginx.ingress.kubernetes.io/rewrite-target for URL rewriting
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  # IngressClassName specifies which ingress controller to use
+  # "nginx" uses the NGINX Ingress Controller (enabled via Minikube addon)
+  ingressClassName: {{ .Values.ingress.className }}
+
+  # Rules define how to route incoming requests
+  rules:
+  # Host-based routing: all requests to this host are processed by these rules
+  - host: {{ .Values.ingress.host }}
+    http:
+      paths:
+      # Path-based routing: different paths route to different services
+      # Order matters: more specific paths should come first
+      {{- range .Values.ingress.paths }}
+      - path: {{ .path }}
+        # PathType determines how path matching works:
+        # - Prefix: matches if request path starts with this path
+        # - Exact: matches only if request path exactly equals this path
+        pathType: {{ .pathType }}
+        backend:
+          service:
+            # Route to the appropriate service (frontend or backend)
+            name: {{ include "todo-app.fullname" $ }}-{{ .backend }}
+            port:
+              number: {{ .port }}
+      {{- end }}
+{{- end }}

@@ -1,0 +1,34 @@
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: statestore
+  namespace: default
+spec:
+  type: state.postgresql
+  version: v1
+  metadata:
+  # PostgreSQL connection string (from Kubernetes Secret)
+  - name: connectionString
+    secretKeyRef:
+      name: app-secrets
+      key: database-url
+
+  # Table name for state storage
+  - name: tableName
+    value: "dapr_state"
+
+  # Key prefix for namespacing
+  - name: keyPrefix
+    value: "todo-app"
+
+  # Timeout for database operations (seconds)
+  - name: timeout
+    value: "20"
+
+  # Enable transactions
+  - name: actorStateStore
+    value: "true"
+
+scopes:
+- backend
+- chat-api

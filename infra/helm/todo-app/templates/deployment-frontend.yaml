@@ -1,0 +1,92 @@
+{{- if .Values.frontend.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "todo-app.fullname" . }}-frontend
+  labels:
+    {{- include "todo-app.frontend.labels" . | nindent 4 }}
+spec:
+  # Number of pod replicas - increase for high availability
+  replicas: {{ .Values.frontend.replicas }}
+
+  # Rolling update strategy ensures zero downtime during deployments
+  # maxSurge: 1 allows one extra pod during updates
+  # maxUnavailable: 0 ensures at least one pod is always available
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+
+  selector:
+    matchLabels:
+      {{- include "todo-app.frontend.selectorLabels" . | nindent 6 }}
+
+  template:
+    metadata:
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "frontend"
+        dapr.io/app-port: "3000"
+        dapr.io/log-level: "info"
+        dapr.io/enable-metrics: "true"
+      labels:
+        {{- include "todo-app.frontend.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+      - name: {{ .Values.frontend.name }}
+        # Frontend image built with multi-stage Dockerfile for optimal size (~150MB)
+        image: "{{ .Values.frontend.image.repository }}:{{ .Values.frontend.image.tag }}"
+        # IfNotPresent: use local image if available (important for Minikube)
+        imagePullPolicy: {{ .Values.frontend.image.pullPolicy }}
+
+        ports:
+        - name: http
+          containerPort: {{ .Values.frontend.service.targetPort }}
+          protocol: TCP
+
+        # Environment variables for Next.js runtime configuration
+        env:
+        # Backend API URL for client-side requests
+        - name: NEXT_PUBLIC_API_URL
+          value: {{ .Values.frontend.env.apiUrl | quote }}
+        # Node environment (production for optimizations)
+        - name: NODE_ENV
+          value: {{ .Values.global.environment | quote }}
+
+        # Resource limits prevent pod from consuming excessive resources
+        # Requests: guaranteed resources allocated to pod
+        # Limits: maximum resources pod can use before throttling/termination
+        resources:
+          {{- toYaml .Values.frontend.resources | nindent 10 }}
+
+        {{- if .Values.frontend.probes.readiness.enabled }}
+        # Readiness probe determines when pod is ready to receive traffic
+        # Pod won't receive traffic until this probe succeeds
+        # Useful during startup and when temporarily unable to serve requests
+        readinessProbe:
+          httpGet:
+            path: {{ .Values.frontend.probes.readiness.path }}
+            port: http
+          initialDelaySeconds: {{ .Values.frontend.probes.readiness.initialDelaySeconds }}
+          periodSeconds: {{ .Values.frontend.probes.readiness.periodSeconds }}
+          timeoutSeconds: {{ .Values.frontend.probes.readiness.timeoutSeconds }}
+          successThreshold: {{ .Values.frontend.probes.readiness.successThreshold }}
+          failureThreshold: {{ .Values.frontend.probes.readiness.failureThreshold }}
+        {{- end }}
+
+        {{- if .Values.frontend.probes.liveness.enabled }}
+        # Liveness probe determines if pod is healthy
+        # If probe fails repeatedly, Kubernetes will restart the pod
+        # Helps recover from deadlocks or unresponsive states
+        livenessProbe:
+          httpGet:
+            path: {{ .Values.frontend.probes.liveness.path }}
+            port: http
+          initialDelaySeconds: {{ .Values.frontend.probes.liveness.initialDelaySeconds }}
+          periodSeconds: {{ .Values.frontend.probes.liveness.periodSeconds }}
+          timeoutSeconds: {{ .Values.frontend.probes.liveness.timeoutSeconds }}
+          successThreshold: {{ .Values.frontend.probes.liveness.successThreshold }}
+          failureThreshold: {{ .Values.frontend.probes.liveness.failureThreshold }}
+        {{- end }}
+{{- end }}

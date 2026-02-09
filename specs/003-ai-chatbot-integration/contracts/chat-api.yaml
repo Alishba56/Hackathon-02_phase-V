@@ -1,0 +1,282 @@
+openapi: 3.0.3
+info:
+  title: AI Todo Chatbot API
+  description: Chat endpoint for natural language task management
+  version: 1.0.0
+  contact:
+    name: Phase III Development Team
+
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+  - url: https://api.example.com
+    description: Production server
+
+security:
+  - BearerAuth: []
+
+paths:
+  /api/{user_id}/chat:
+    post:
+      summary: Send message to AI chatbot
+      description: |
+        Send a natural language message to the AI chatbot for task management.
+        The chatbot can execute task operations (add, list, complete, delete, update)
+        and respond to user profile queries. Requires JWT authentication.
+      operationId: sendChatMessage
+      tags:
+        - Chat
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: Authenticated user's ID (must match JWT token)
+          schema:
+            type: string
+            format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+            examples:
+              newConversation:
+                summary: Start new conversation
+                value:
+                  message: "Add task: Buy groceries"
+              existingConversation:
+                summary: Continue conversation
+                value:
+                  conversation_id: "660e8400-e29b-41d4-a716-446655440000"
+                  message: "Show me all my tasks"
+              urduCommand:
+                summary: Urdu language command
+                value:
+                  conversation_id: "660e8400-e29b-41d4-a716-446655440000"
+                  message: "Meri sari tasks dikhao"
+      responses:
+        '200':
+          description: Successful response from chatbot
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+              examples:
+                taskAdded:
+                  summary: Task added successfully
+                  value:
+                    conversation_id: "660e8400-e29b-41d4-a716-446655440000"
+                    response: "✓ Task 'Buy groceries' add kar diya gaya!"
+                    tool_calls:
+                      - name: "add_task"
+                        parameters:
+                          title: "Buy groceries"
+                        result:
+                          success: true
+                          data:
+                            id: "770e8400-e29b-41d4-a716-446655440000"
+                            title: "Buy groceries"
+                            completed: false
+                tasksList:
+                  summary: Tasks listed
+                  value:
+                    conversation_id: "660e8400-e29b-41d4-a716-446655440000"
+                    response: "Aap ki tasks:\n1. Buy groceries (pending)\n2. Call mom (completed)"
+                    tool_calls:
+                      - name: "list_tasks"
+                        parameters:
+                          status: null
+                        result:
+                          success: true
+                          data:
+                            - id: "770e8400-e29b-41d4-a716-446655440000"
+                              title: "Buy groceries"
+                              completed: false
+                            - id: "880e8400-e29b-41d4-a716-446655440000"
+                              title: "Call mom"
+                              completed: true
+                userProfile:
+                  summary: User profile query
+                  value:
+                    conversation_id: "660e8400-e29b-41d4-a716-446655440000"
+                    response: "Aap ka email hai muhammad@example.com"
+                    tool_calls:
+                      - name: "get_user_profile"
+                        parameters: {}
+                        result:
+                          success: true
+                          data:
+                            id: "550e8400-e29b-41d4-a716-446655440000"
+                            email: "muhammad@example.com"
+                            name: "Muhammad Ali"
+                            created_at: "2026-01-15T10:30:00Z"
+        '400':
+          description: Bad request (invalid input)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Invalid request"
+                detail: "Message cannot be empty"
+        '401':
+          description: Unauthorized (missing or invalid JWT)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Unauthorized"
+                detail: "Authentication required"
+        '403':
+          description: Forbidden (user_id mismatch)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Forbidden"
+                detail: "You don't have permission to access this resource"
+        '429':
+          description: Too many requests (rate limit exceeded)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Too many requests"
+                detail: "Please try again in a moment"
+          headers:
+            Retry-After:
+              description: Seconds to wait before retrying
+              schema:
+                type: integer
+              example: 60
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Internal server error"
+                detail: "Unable to process request"
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from Better Auth login
+
+  schemas:
+    ChatRequest:
+      type: object
+      required:
+        - message
+      properties:
+        conversation_id:
+          type: string
+          format: uuid
+          description: |
+            Optional conversation ID to continue existing conversation.
+            If not provided, a new conversation will be created.
+          example: "660e8400-e29b-41d4-a716-446655440000"
+        message:
+          type: string
+          minLength: 1
+          maxLength: 5000
+          description: User's natural language message
+          example: "Add task: Buy groceries"
+
+    ChatResponse:
+      type: object
+      required:
+        - conversation_id
+        - response
+      properties:
+        conversation_id:
+          type: string
+          format: uuid
+          description: Conversation ID (new or existing)
+          example: "660e8400-e29b-41d4-a716-446655440000"
+        response:
+          type: string
+          description: Chatbot's natural language response
+          example: "✓ Task 'Buy groceries' add kar diya gaya!"
+        tool_calls:
+          type: array
+          description: List of tools called during processing (for transparency)
+          items:
+            $ref: '#/components/schemas/ToolCall'
+
+    ToolCall:
+      type: object
+      required:
+        - name
+        - parameters
+        - result
+      properties:
+        name:
+          type: string
+          description: Name of the tool that was called
+          enum:
+            - add_task
+            - list_tasks
+            - complete_task
+            - delete_task
+            - update_task
+            - get_user_profile
+          example: "add_task"
+        parameters:
+          type: object
+          description: Parameters passed to the tool
+          additionalProperties: true
+          example:
+            title: "Buy groceries"
+            description: "Milk, eggs, bread"
+        result:
+          type: object
+          description: Result returned by the tool
+          required:
+            - success
+          properties:
+            success:
+              type: boolean
+              description: Whether the tool execution succeeded
+              example: true
+            data:
+              type: object
+              description: Tool result data (if successful)
+              additionalProperties: true
+              example:
+                id: "770e8400-e29b-41d4-a716-446655440000"
+                title: "Buy groceries"
+                completed: false
+            error:
+              type: string
+              description: Error message (if failed)
+              example: "Task not found"
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          description: Error type or summary
+          example: "Bad request"
+        detail:
+          type: string
+          description: Detailed error message
+          example: "Message cannot be empty"
+
+tags:
+  - name: Chat
+    description: AI chatbot endpoints for natural language task management

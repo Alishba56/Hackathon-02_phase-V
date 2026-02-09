@@ -1,0 +1,19 @@
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: scheduler
+  namespace: default
+spec:
+  type: scheduler.kubernetes
+  version: v1
+  metadata:
+  # Kubernetes namespace for job resources
+  - name: namespace
+    value: "default"
+
+  # Job namespace (optional, defaults to component namespace)
+  - name: jobNamespace
+    value: "default"
+
+scopes:
+- backend

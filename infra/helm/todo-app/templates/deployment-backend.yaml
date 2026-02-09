@@ -1,0 +1,94 @@
+{{- if .Values.backend.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "todo-app.fullname" . }}-backend
+  labels:
+    {{- include "todo-app.backend.labels" . | nindent 4 }}
+spec:
+  # Number of pod replicas - scale horizontally for increased load
+  replicas: {{ .Values.backend.replicas }}
+
+  # Rolling update strategy ensures zero downtime during deployments
+  # maxSurge: 1 allows one extra pod during updates
+  # maxUnavailable: 0 ensures at least one pod is always available
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+
+  selector:
+    matchLabels:
+      {{- include "todo-app.backend.selectorLabels" . | nindent 6 }}
+
+  template:
+    metadata:
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "backend"
+        dapr.io/app-port: "8000"
+        dapr.io/log-level: "info"
+        dapr.io/enable-metrics: "true"
+      labels:
+        {{- include "todo-app.backend.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+      - name: {{ .Values.backend.name }}
+        # Backend image built with Python 3.11-slim for production (~300MB)
+        image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
+        # IfNotPresent: use local image if available (important for Minikube)
+        imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
+
+        ports:
+        - name: http
+          containerPort: {{ .Values.backend.service.targetPort }}
+          protocol: TCP
+
+        # Environment variables injected from Secrets and ConfigMap
+        # envFrom loads all keys from the referenced resources
+        envFrom:
+        # Secrets contain sensitive data: DATABASE_URL, BETTER_AUTH_SECRET, COHERE_API_KEY
+        - secretRef:
+            name: {{ include "todo-app.fullname" . }}-secrets
+        # ConfigMap contains non-sensitive configuration
+        - configMapRef:
+            name: {{ include "todo-app.fullname" . }}-config
+
+        # Resource limits prevent pod from consuming excessive resources
+        # Backend needs more resources than frontend due to AI processing
+        # Requests: 512Mi memory, 300m CPU (guaranteed)
+        # Limits: 1Gi memory, 1000m CPU (maximum before throttling/termination)
+        resources:
+          {{- toYaml .Values.backend.resources | nindent 10 }}
+
+        {{- if .Values.backend.probes.readiness.enabled }}
+        # Readiness probe checks /api/health endpoint
+        # Pod won't receive traffic until this probe succeeds
+        # Ensures database connection and dependencies are ready
+        readinessProbe:
+          httpGet:
+            path: {{ .Values.backend.probes.readiness.path }}
+            port: http
+          initialDelaySeconds: {{ .Values.backend.probes.readiness.initialDelaySeconds }}
+          periodSeconds: {{ .Values.backend.probes.readiness.periodSeconds }}
+          timeoutSeconds: {{ .Values.backend.probes.readiness.timeoutSeconds }}
+          successThreshold: {{ .Values.backend.probes.readiness.successThreshold }}
+          failureThreshold: {{ .Values.backend.probes.readiness.failureThreshold }}
+        {{- end }}
+
+        {{- if .Values.backend.probes.liveness.enabled }}
+        # Liveness probe determines if pod is healthy
+        # If probe fails repeatedly, Kubernetes will restart the pod
+        # Helps recover from deadlocks, memory leaks, or unresponsive states
+        livenessProbe:
+          httpGet:
+            path: {{ .Values.backend.probes.liveness.path }}
+            port: http
+          initialDelaySeconds: {{ .Values.backend.probes.liveness.initialDelaySeconds }}
+          periodSeconds: {{ .Values.backend.probes.liveness.periodSeconds }}
+          timeoutSeconds: {{ .Values.backend.probes.liveness.timeoutSeconds }}
+          successThreshold: {{ .Values.backend.probes.liveness.successThreshold }}
+          failureThreshold: {{ .Values.backend.probes.liveness.failureThreshold }}
+        {{- end }}
+{{- end }}
