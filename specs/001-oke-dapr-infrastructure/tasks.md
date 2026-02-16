@@ -24,11 +24,11 @@
 
 **Purpose**: Create infrastructure directories and base configuration files
 
-- [ ] T001 Create infra/dapr-components/ directory for Dapr component YAMLs
-- [ ] T002 Create infra/oke/ directory for OKE cluster setup scripts
-- [ ] T003 Create infra/scripts/ directory for deployment automation scripts
-- [ ] T004 Create .github/workflows/ directory for CI/CD pipeline
-- [ ] T005 Create docs/ directory for deployment documentation
+- [x] T001 Create infra/dapr-components/ directory for Dapr component YAMLs
+- [x] T002 Create infra/oke/ directory for OKE cluster setup scripts
+- [x] T003 Create infra/scripts/ directory for deployment automation scripts
+- [x] T004 Create .github/workflows/ directory for CI/CD pipeline
+- [x] T005 Create docs/ directory for deployment documentation
 
 ---
 
@@ -38,9 +38,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T006 Create OKE cluster provisioning script in infra/oke/cluster-setup.sh
-- [ ] T007 Create Dapr initialization script in infra/oke/dapr-init.sh
-- [ ] T008 Create OKE setup documentation in infra/oke/README.md
+- [x] T006 Create OKE cluster provisioning script in infra/oke/cluster-setup.sh
+- [x] T007 Create Dapr initialization script in infra/oke/dapr-init.sh
+- [x] T008 Create OKE setup documentation in infra/oke/README.md
 - [ ] T009 Provision Oracle OKE cluster (4 OCPU, 24GB RAM, always-free tier)
 - [ ] T010 Configure kubectl access to OKE cluster (generate kubeconfig)
 - [ ] T011 Install Dapr runtime on OKE cluster using dapr init -k
@@ -61,10 +61,10 @@
 
 ### Dapr Components Creation
 
-- [ ] T016 [P] [US1] Create Dapr Kafka Pub/Sub component in infra/dapr-components/kafka-pubsub.yaml
-- [ ] T017 [P] [US1] Create Dapr PostgreSQL State Store component in infra/dapr-components/state-postgresql.yaml
-- [ ] T018 [P] [US1] Create Dapr Scheduler/Jobs component in infra/dapr-components/scheduler-jobs.yaml
-- [ ] T019 [P] [US1] Create Dapr Secrets component in infra/dapr-components/secretstores-kubernetes.yaml
+- [x] T016 [P] [US1] Create Dapr Kafka Pub/Sub component in infra/dapr-components/kafka-pubsub.yaml
+- [x] T017 [P] [US1] Create Dapr PostgreSQL State Store component in infra/dapr-components/state-postgresql.yaml
+- [x] T018 [P] [US1] Create Dapr Scheduler/Jobs component in infra/dapr-components/scheduler-jobs.yaml
+- [x] T019 [P] [US1] Create Dapr Secrets component in infra/dapr-components/secretstores-kubernetes.yaml
 
 ### Kubernetes Secrets Setup
 
@@ -73,13 +73,13 @@
 
 ### Helm Chart Upgrades
 
-- [ ] T022 [US1] Update infra/helm/todo-app/Chart.yaml version from 0.1.0 to 0.2.0
-- [ ] T023 [P] [US1] Add Dapr sidecar annotations to infra/helm/todo-app/templates/deployment-frontend.yaml
-- [ ] T024 [P] [US1] Add Dapr sidecar annotations to infra/helm/todo-app/templates/deployment-backend.yaml
-- [ ] T025 [US1] Create Dapr components template in infra/helm/todo-app/templates/dapr-components.yaml
-- [ ] T026 [US1] Update infra/helm/todo-app/values.yaml with Dapr configuration (app-id, ports, log-level)
-- [ ] T027 [US1] Create OKE-specific values file in infra/helm/todo-app/values-oke.yaml
-- [ ] T028 [US1] Update infra/helm/todo-app/templates/secrets.yaml to include Kafka credentials
+- [x] T022 [US1] Update infra/helm/todo-app/Chart.yaml version from 0.1.0 to 0.2.0
+- [x] T023 [P] [US1] Add Dapr sidecar annotations to infra/helm/todo-app/templates/deployment-frontend.yaml
+- [x] T024 [P] [US1] Add Dapr sidecar annotations to infra/helm/todo-app/templates/deployment-backend.yaml
+- [x] T025 [US1] Create Dapr components template in infra/helm/todo-app/templates/dapr-components.yaml
+- [x] T026 [US1] Update infra/helm/todo-app/values.yaml with Dapr configuration (app-id, ports, log-level)
+- [x] T027 [US1] Create OKE-specific values file in infra/helm/todo-app/values-oke.yaml
+- [x] T028 [US1] Update infra/helm/todo-app/templates/secrets.yaml to include Kafka credentials
 
 ### Deployment and Verification
 
@@ -107,13 +107,13 @@
 
 ### Backend Event Publishing Implementation
 
-- [ ] T040 [US2] Create Dapr HTTP client wrapper in backend/services/dapr_client.py
-- [ ] T041 [US2] Add event publishing to task creation in backend/routes/tasks.py (POST endpoint)
-- [ ] T042 [US2] Add event publishing to task update in backend/routes/tasks.py (PUT endpoint)
-- [ ] T043 [US2] Add event publishing to task deletion in backend/routes/tasks.py (DELETE endpoint)
-- [ ] T044 [US2] Add event publishing to task completion in backend/routes/tasks.py (PATCH endpoint)
-- [ ] T045 [US2] Implement CloudEvents format for all published events
-- [ ] T046 [US2] Add trace context propagation to event headers
+- [x] T040 [US2] Create Dapr HTTP client wrapper in backend/services/dapr_client.py
+- [x] T041 [US2] Add event publishing to task creation in backend/routes/tasks.py (POST endpoint)
+- [x] T042 [US2] Add event publishing to task update in backend/routes/tasks.py (PUT endpoint)
+- [x] T043 [US2] Add event publishing to task deletion in backend/routes/tasks.py (DELETE endpoint)
+- [x] T044 [US2] Add event publishing to task completion in backend/routes/tasks.py (PATCH endpoint)
+- [x] T045 [US2] Implement CloudEvents format for all published events
+- [x] T046 [US2] Add trace context propagation to event headers
 
 ### Event Flow Testing and Verification
 
@@ -140,13 +140,13 @@
 
 ### GitHub Actions Workflow Creation
 
-- [ ] T057 [US3] Create GitHub Actions workflow file in .github/workflows/deploy-oke.yml
-- [ ] T058 [US3] Implement test stage (pytest, linting) in workflow
-- [ ] T059 [US3] Implement build stage (Docker images for frontend and backend) in workflow
-- [ ] T060 [US3] Implement push stage (push images to ghcr.io) in workflow
-- [ ] T061 [US3] Implement deploy stage (Helm upgrade on OKE) in workflow
-- [ ] T062 [US3] Implement verify stage (pod status, smoke tests) in workflow
-- [ ] T063 [US3] Add workflow triggers (push to main, pull_request, workflow_dispatch)
+- [x] T057 [US3] Create GitHub Actions workflow file in .github/workflows/deploy-oke.yml
+- [x] T058 [US3] Implement test stage (pytest, linting) in workflow
+- [x] T059 [US3] Implement build stage (Docker images for frontend and backend) in workflow
+- [x] T060 [US3] Implement push stage (push images to ghcr.io) in workflow
+- [x] T061 [US3] Implement deploy stage (Helm upgrade on OKE) in workflow
+- [x] T062 [US3] Implement verify stage (pod status, smoke tests) in workflow
+- [x] T063 [US3] Add workflow triggers (push to main, pull_request, workflow_dispatch)
 
 ### GitHub Secrets Configuration
 
@@ -182,10 +182,10 @@
 
 ### Structured Logging Implementation
 
-- [ ] T080 [P] [US4] Implement structured JSON logging in backend/services/logger.py
-- [ ] T081 [P] [US4] Add trace context to all backend log statements
-- [ ] T082 [US4] Update backend routes to use structured logger
-- [ ] T083 [US4] Add correlation IDs to event publishing logs
+- [x] T080 [P] [US4] Implement structured JSON logging in backend/services/logger.py
+- [x] T081 [P] [US4] Add trace context to all backend log statements
+- [x] T082 [US4] Update backend routes to use structured logger
+- [x] T083 [US4] Add correlation IDs to event publishing logs
 - [ ] T084 [US4] Rebuild and deploy backend with structured logging
 
 ### Dapr Dashboard Setup
@@ -197,10 +197,10 @@
 
 ### Monitoring Documentation and Tools
 
-- [ ] T089 [P] [US4] Create monitoring guide in docs/monitoring.md
-- [ ] T090 [P] [US4] Document kubectl logs commands for all pods in docs/monitoring.md
-- [ ] T091 [P] [US4] Document kubectl-ai/kagent usage examples in docs/monitoring.md
-- [ ] T092 [US4] Create troubleshooting runbook in docs/troubleshooting.md
+- [x] T089 [P] [US4] Create monitoring guide in docs/monitoring.md
+- [x] T090 [P] [US4] Document kubectl logs commands for all pods in docs/monitoring.md
+- [x] T091 [P] [US4] Document kubectl-ai/kagent usage examples in docs/monitoring.md
+- [x] T092 [US4] Create troubleshooting runbook in docs/troubleshooting.md
 
 ### Monitoring Verification
 
@@ -221,16 +221,16 @@
 
 **Purpose**: Documentation, deployment automation, and final verification
 
-- [ ] T101 [P] Create deployment automation script in infra/scripts/deploy-oke.sh
-- [ ] T102 [P] Create deployment verification script in infra/scripts/verify-deployment.sh
-- [ ] T103 [P] Create OKE deployment guide in docs/oke-deployment.md
-- [ ] T104 [P] Create Dapr integration guide in docs/dapr-integration.md
-- [ ] T105 [P] Create demo script for judges in docs/demo-script.md
-- [ ] T106 Update main README.md with OKE deployment instructions
+- [x] T101 [P] Create deployment automation script in infra/scripts/deploy-oke.sh
+- [x] T102 [P] Create deployment verification script in infra/scripts/verify-deployment.sh
+- [x] T103 [P] Create OKE deployment guide in docs/oke-deployment.md
+- [x] T104 [P] Create Dapr integration guide in docs/dapr-integration.md
+- [x] T105 [P] Create demo script for judges in docs/demo-script.md
+- [x] T106 Update main README.md with OKE deployment instructions
 - [ ] T107 Test one-command deployment (./infra/scripts/deploy-oke.sh)
 - [ ] T108 Verify all Phase IV features still work (no regressions)
 - [ ] T109 Run complete end-to-end test (login → chat → create task → verify event → check logs)
-- [ ] T110 Create final deployment checklist in docs/deployment-checklist.md
+- [x] T110 Create final deployment checklist in docs/deployment-checklist.md
 
 ---
 
